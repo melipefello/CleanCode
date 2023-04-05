@@ -4,7 +4,7 @@ updates:
     directory: "/src/dotnet/"
     schedule:
       interval: daily
-      time: "04:00"
+      time: "18:10"
     open-pull-requests-limit: 10
   - package-ecosystem: "gradle"
     directory: "/" # Location of package manifests
