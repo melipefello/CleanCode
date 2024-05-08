@@ -1,0 +1,37 @@
+name: Create 
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install .NET 6 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.x'
+
+      - name: Build Plugin
+        run: ./gradlew buildPlugin
+
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v4.3.3
+        with:
+          name: Artifacts
+          path: output
+      
+      - name: Publish plugins to jetbrains
+        run: ./gradlew publishPlugin
+        env:
+          PublishKey: ${{ secrets.PublishKey }}
+        if: github.event_name != 'pull_request'
