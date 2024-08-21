@@ -7,7 +7,7 @@ import java.io.ByteArrayOutputStream
 plugins {
     id("java")
     alias(libs.plugins.kotlinJvm)
-    id("org.jetbrains.intellij.platform") version "2.0.0"     // See https://github.com/JetBrains/intellij-platform-gradle-plugin/releases
+    id("org.jetbrains.intellij.platform") version "2.0.1"     // See https://github.com/JetBrains/intellij-platform-gradle-plugin/releases
     id("me.filippov.gradle.jvm.wrapper") version "0.14.0"
 }
 
@@ -80,7 +80,7 @@ val setBuildTool by tasks.registering {
             }
         }
 
-        args.add("${DotnetSolution}")
+        args.add(DotnetSolution)
         args.add("/p:Configuration=${BuildConfiguration}")
         args.add("/p:HostFullIdentifier=")
         extra["args"] = args
@@ -93,6 +93,7 @@ val compileDotNet by tasks.registering {
         val executable: String by setBuildTool.get().extra
         val arguments = (setBuildTool.get().extra["args"] as List<String>).toMutableList()
         arguments.add("/t:Restore;Rebuild")
+
         exec {
             executable(executable)
             args(arguments)
@@ -105,7 +106,7 @@ val testDotNet by tasks.registering {
     doLast {
         exec {
             executable("dotnet")
-            args("test","${DotnetSolution}","--logger","GitHubActions")
+            args("test", DotnetSolution,"--logger","GitHubActions")
             workingDir(rootDir)
         }
     }
@@ -131,6 +132,7 @@ tasks.buildPlugin {
         arguments.add("/p:PackageOutputPath=${rootDir}/output")
         arguments.add("/p:PackageReleaseNotes=${changeNotes}")
         arguments.add("/p:PackageVersion=${version}")
+
         exec {
             executable(executable)
             args(arguments)
@@ -193,12 +195,12 @@ tasks.prepareSandbox {
 tasks.publishPlugin {
     // dependsOn(testDotNet)
     dependsOn(tasks.buildPlugin)
-    token.set("${PublishToken}")
+    token.set(PublishToken)
 
     doLast {
         exec {
             executable("dotnet")
-            args("nuget","push","output/${DotnetPluginId}.${version}.nupkg","--api-key","${PublishToken}","--source","https://plugins.jetbrains.com")
+            args("nuget","push","output/${DotnetPluginId}.${version}.nupkg","--api-key", PublishToken,"--source","https://plugins.jetbrains.com")
             workingDir(rootDir)
         }
     }
